@@ -1,5 +1,5 @@
 /**
- * Representa uma aula cadastrada no sistema
+ * Representa uma aula cadastrada no sistema.
  */
 export default class Aula {
     constructor(id, disciplina, data, horario, status, token) {
