@@ -14,4 +14,7 @@ export default class StorageService {
         const dados  = JSON.parse(dadosJson );
         return dados ;
     }
+    static remover(chave) {
+        localStorage.removeItem(chave);
+    }
 }
