@@ -17,4 +17,7 @@ export default class StorageService {
     static remover(chave) {
         localStorage.removeItem(chave);
     }
+    static atualizar(chave, dados) {
+        StorageService.salvar(chave, dados);
+    }
 }
