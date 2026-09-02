@@ -6,4 +6,12 @@ export default class StorageService {
         const texto = JSON.stringify(dados);
         localStorage.setItem(chave, texto);
     }
+    static buscar(chave) {
+        const dadosJson  = localStorage.getItem(chave);
+        if (dadosJson === null){
+            return [];
+        }
+        const dados  = JSON.parse(dadosJson );
+        return dados ;
+    }
 }
