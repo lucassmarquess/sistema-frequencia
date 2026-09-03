@@ -12,4 +12,9 @@ export default class AlunoService {
     static listar() {
         return StorageService.buscar("alunos");
     }
+    static buscarPorId(id) {
+        const alunos = AlunoService.listar();
+        const aluno = alunos.find(aluno => aluno.id === id);
+        return aluno;
+    }
 }
