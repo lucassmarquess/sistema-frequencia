@@ -9,4 +9,7 @@ export default class AlunoService {
         dados.push(aluno);
         StorageService.atualizar("alunos", dados);
     }
+    static listar() {
+        return StorageService.buscar("alunos");
+    }
 }
