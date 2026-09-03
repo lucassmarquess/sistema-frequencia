@@ -17,4 +17,10 @@ export default class AlunoService {
         const aluno = alunos.find(aluno => aluno.id === id);
         return aluno;
     }
+    static atualizar(id, aluno) {
+        const alunos = AlunoService.listar();
+        const indice = alunos.findIndex(aluno => aluno.id === id);
+        alunos[indice] = aluno;
+        StorageService.atualizar("alunos", alunos);
+    }
 }
