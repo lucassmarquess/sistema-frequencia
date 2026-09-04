@@ -23,4 +23,9 @@ export default class AlunoService {
         alunos[indice] = aluno;
         StorageService.atualizar("alunos", alunos);
     }
+        static remover(id) {
+            const alunos = AlunoService.listar();
+            const remocao = alunos.filter(aluno => aluno.id !== id);
+            StorageService.atualizar("alunos", remocao)
+        }
 }
