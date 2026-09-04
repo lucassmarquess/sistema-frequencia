@@ -18,5 +18,10 @@ export default class AulaService {
         const elemento = aulas.find(aula => aula.id === id);
         return elemento;
     }
-
+    static atualizar(id, aula) {
+        const aulas = AulaService.listar();
+        const indice = aulas.findIndex(aula => aula.id === id);
+        aulas[indice] = aula;
+        StorageService.atualizar("aulas", aulas);
+    }
 }
