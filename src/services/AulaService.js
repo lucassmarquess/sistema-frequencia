@@ -5,8 +5,12 @@ import StorageService from "./StorageService";
 
 export default class AulaService {
     static cadastrar(aula) {
-        const dados = StorageService.buscar("aulas");
+        const dados = listar();
         dados.push(aula);
         StorageService.atualizar("aulas", dados);
+    }
+    static listar() {
+        const aulas = StorageService.buscar("aulas");
+        return aulas;
     }
 }
