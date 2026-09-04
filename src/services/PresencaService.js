@@ -24,4 +24,9 @@ export default class PresencaService {
         presencas[indice] = presenca;
         StorageService.atualizar("presencas", presencas);
     }
+    static remover(id) {
+        const presencas = PresencaService.listar();
+        const remocao = presencas.filter(presenca => presenca.id !== id);
+        StorageService.atualizar("presencas", remocao);
+    }
 }
