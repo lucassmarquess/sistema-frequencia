@@ -18,4 +18,10 @@ export default class PresencaService {
         const elemento = presencas.find(presenca => presenca.id === id);
         return elemento;
     }
+    static atualizar(id, presenca) {
+        const presencas = PresencaService.listar();
+        const indice = presencas.findIndex(presenca => presenca.id === id);
+        presencas[indice] = presenca;
+        StorageService.atualizar("presencas", presencas);
+    }
 }
