@@ -5,7 +5,7 @@ import StorageService from "./StorageService";
 
 export default class AlunoService {
     static cadastrar(aluno) {
-        const dados = listar();
+        const dados = AlunoService.listar();
         dados.push(aluno);
         StorageService.atualizar("alunos", dados);
     }
