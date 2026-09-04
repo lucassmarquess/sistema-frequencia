@@ -5,7 +5,7 @@ import StorageService from "./StorageService";
 
 export default class AlunoService {
     static cadastrar(aluno) {
-        const dados = StorageService.buscar("alunos");
+        const dados = listar();
         dados.push(aluno);
         StorageService.atualizar("alunos", dados);
     }
@@ -23,9 +23,9 @@ export default class AlunoService {
         alunos[indice] = aluno;
         StorageService.atualizar("alunos", alunos);
     }
-        static remover(id) {
-            const alunos = AlunoService.listar();
-            const remocao = alunos.filter(aluno => aluno.id !== id);
-            StorageService.atualizar("alunos", remocao)
-        }
+    static remover(id) {
+        const alunos = AlunoService.listar();
+        const remocao = alunos.filter(aluno => aluno.id !== id);
+        StorageService.atualizar("alunos", remocao)
+    }
 }
