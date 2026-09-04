@@ -13,4 +13,9 @@ export default class PresencaService {
         const presencas = StorageService.buscar("presencas");
         return presencas;
     }
+    static buscarPorId(id) {
+        const presencas = PresencaService.listar();
+        const elemento = presencas.find(presenca => presenca.id === id);
+        return elemento;
+    }
 }
