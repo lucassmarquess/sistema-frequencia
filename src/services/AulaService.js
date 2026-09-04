@@ -13,4 +13,10 @@ export default class AulaService {
         const aulas = StorageService.buscar("aulas");
         return aulas;
     }
+    static buscarPorId(id) {
+        const aulas = AulaService.listar();
+        const elemento = aulas.find(aula => aula.id === id);
+        return elemento;
+    }
+
 }
