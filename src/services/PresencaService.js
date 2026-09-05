@@ -29,4 +29,11 @@ export default class PresencaService {
         const remocao = presencas.filter(presenca => presenca.id !== id);
         StorageService.atualizar("presencas", remocao);
     }
+    static verificarExistencia(alunoId, aulaId) {
+        const presencas = PresencaService.listar();
+        return presencas.some(presenca => 
+            presenca.alunoId === alunoId &&
+            presenca.aulaId === aulaId
+        );
+    }
 }
