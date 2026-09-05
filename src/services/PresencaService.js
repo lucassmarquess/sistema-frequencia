@@ -2,11 +2,19 @@
  * Responsável por realizar operações relacionadas a Presença.
  */
 import StorageService from "./StorageService";
+import AlunoService from "./AlunoService";
+import AulaService from "./AulaService";
 
 export default class PresencaService {
     static cadastrar(presenca) {
         const alunoId = presenca.alunoId;
+        if (AlunoService.buscarPorId(alunoId) === undefined) {
+            return "Aluno não existe";
+        }
         const aulaId = presenca.aulaId;
+        if (AulaService.buscarPorId(aulaId) === undefined) {
+            return "Aula não existe";
+        }
         const verificar = PresencaService.verificarExistencia(alunoId, aulaId);
         if (verificar === true ) {
             return "Presença duplicada";
