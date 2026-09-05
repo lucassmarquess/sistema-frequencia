@@ -41,8 +41,13 @@ export default class PresencaService {
     }
     static remover(id) {
         const presencas = PresencaService.listar();
+        const verificacao = presencas.findIndex(presenca => presenca.id === id);
+        if (verificacao === -1) {
+            return "Presença inexistente";
+        }
         const remocao = presencas.filter(presenca => presenca.id !== id);
         StorageService.atualizar("presencas", remocao);
+        return "Remoção realizada com sucesso";
     }
     static verificarExistencia(alunoId, aulaId) {
         const presencas = PresencaService.listar();
