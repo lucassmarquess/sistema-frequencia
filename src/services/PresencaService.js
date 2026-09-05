@@ -9,11 +9,12 @@ export default class PresencaService {
         const aulaId = presenca.aulaId;
         const verificar = PresencaService.verificarExistencia(alunoId, aulaId);
         if (verificar === true ) {
-            return;
+            return "Presença duplicada";
         }
         const presencas = PresencaService.listar();
         presencas.push(presenca);
         StorageService.atualizar("presencas", presencas);
+        return "Cadastro realizado";
     }
     static listar() {
         const presencas = StorageService.buscar("presencas");
