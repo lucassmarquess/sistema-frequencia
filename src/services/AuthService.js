@@ -18,4 +18,8 @@ export default class AuthService{
         StorageService.remover("usuarioLogado");
         return "Logout realizado com sucesso";
     }
+    static usuarioLogado() {
+        const usuario = StorageService.buscar("usuarioLogado");
+        return usuario;
+    }
 }
