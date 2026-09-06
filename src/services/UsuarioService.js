@@ -5,8 +5,12 @@ import StorageService from "./StorageService";
 
 export default class UsuarioService {
     static cadastrar(usuario) {
-        const usuarios = StorageService.buscar("usuarios");
+        const usuarios = UsuarioService.listar();
         usuarios.push(usuario);
         StorageService.atualizar("usuarios", usuarios);
+    }
+    static listar() {
+        const usuarios = StorageService.buscar("usuarios");
+        return usuarios;
     }
 }
