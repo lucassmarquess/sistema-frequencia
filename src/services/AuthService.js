@@ -20,6 +20,16 @@ export default class AuthService{
     }
     static usuarioLogado() {
         const usuario = StorageService.buscar("usuarioLogado");
+        if (Array.isArray(usuario) && usuario.length === 0) {
+            return null;
+        }
         return usuario;
+    }
+    static estaAutenticado() {
+        const usuario = AuthService.usuarioLogado();
+        if (usuario !== null) {
+            return true;
+        }
+        return false;
     }
 }
