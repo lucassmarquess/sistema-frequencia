@@ -14,4 +14,8 @@ export default class AuthService{
         StorageService.atualizar("usuarioLogado", autenticacao);
         return "Login realizado com sucesso";
     }
+    static logout() {
+        StorageService.remover("usuarioLogado");
+        return "Logout realizado com sucesso";
+    }
 }
