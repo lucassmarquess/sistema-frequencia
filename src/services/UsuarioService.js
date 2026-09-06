@@ -18,4 +18,14 @@ export default class UsuarioService {
         const elemento = usuarios.find(usuario => usuario.id === id);
         return elemento;
     }
+    static atualizar(id, usuario) {
+        const usuarios = UsuarioService.listar();
+        const indice = usuarios.findIndex(usuario => usuario.id === id);
+        if (indice === -1) {
+            return "Usuário não existe";
+        }
+        usuarios[indice] = usuario;
+        StorageService.atualizar("usuarios", usuarios);
+        return "Usuário atualizado com sucesso";
+    }
 }
