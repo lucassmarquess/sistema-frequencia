@@ -28,4 +28,14 @@ export default class UsuarioService {
         StorageService.atualizar("usuarios", usuarios);
         return "Usuário atualizado com sucesso";
     }
+    static remover(id) {
+        const usuarios = UsuarioService.listar();
+        const indice = usuarios.findIndex(usuario => usuario.id === id);
+        if (indice === -1) {
+            return "Usuário não existe";
+        }
+        const remocao = usuarios.filter(usuario => usuario.id !== id);
+        StorageService.atualizar("usuarios", remocao);
+        return "Remoção realizada com sucesso";
+    }
 }
