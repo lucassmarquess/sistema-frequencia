@@ -13,4 +13,9 @@ export default class UsuarioService {
         const usuarios = StorageService.buscar("usuarios");
         return usuarios;
     }
+    static buscarPorId(id) {
+        const usuarios = UsuarioService.listar();
+        const elemento = usuarios.find(usuario => usuario.id === id);
+        return elemento;
+    }
 }
