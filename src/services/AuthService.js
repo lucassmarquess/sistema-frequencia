@@ -44,4 +44,15 @@ export default class AuthService{
         }
         return "aluno";
     }
+    static ehProfessor() {
+        const autenticacao = AuthService.estaAutenticado();
+        if (autenticacao === false) {
+            return false;
+        }
+        const tipo = AuthService.tipoUsuario();
+        if (tipo === "aluno") {
+            return false;
+        } 
+        return true;
+    }
 }
