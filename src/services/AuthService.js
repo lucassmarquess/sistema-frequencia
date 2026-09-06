@@ -32,4 +32,16 @@ export default class AuthService{
         }
         return false;
     }
+    static tipoUsuario() {
+        const autenticacao = AuthService.estaAutenticado();
+        if (autenticacao === false) {
+            return null;
+        }
+        const usuario = AuthService.usuarioLogado();
+        const tipo = usuario.tipo;
+        if (tipo === "professor") {
+            return "professor";
+        }
+        return "aluno";
+    }
 }
