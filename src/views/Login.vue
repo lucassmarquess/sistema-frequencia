@@ -1,28 +1,29 @@
-<script>
+<script setup>
     import AuthService from "../services/AuthService";
+    import { useRouter } from "vue-router";
+    import { ref } from "vue";
     
-    export default {
-        data () {
-            return {
-                email: "",
-                mensagem: ""
-            };
-        },
-        methods: {
-            login () {
-                this.mensagem = AuthService.login(this.email);
-
-            }
-        }
+    const email = ref("");
+    const mensagem = ref("");
+    const router = useRouter();
+    function login() {
+        const resultado = AuthService.login(email.value);
+        if (resultado === false) {
+            mensagem.value = "Email incorreto";
+            return;
+        } 
+        router.push('/DashBoard');
     }
 </script>
 <template>
     <div>
         <h1>Sistema de Frequência</h1>
 
-        <input type="email" placeholder="E-mail" v-model="email">
-
-        <button @click="login">Entrar</button>
+        <form>
+            <input type="email" placeholder="E-mail" v-model="email">
+            <button @click.prevent="login">Entrar</button>
+        </form>
+        <br>
         {{ mensagem }}
     </div>
 </template>

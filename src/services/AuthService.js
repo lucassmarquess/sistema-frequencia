@@ -9,10 +9,10 @@ export default class AuthService{
         const usuarios = UsuarioService.listar();
         const autenticacao = usuarios.find(usuario => usuario.email === email);
         if (autenticacao === undefined) {
-            return "Usuário não identificado";
+            return false;
         } 
         StorageService.atualizar("usuarioLogado", autenticacao);
-        return "Login realizado com sucesso";
+        return true;
     }
     static logout() {
         StorageService.remover("usuarioLogado");
