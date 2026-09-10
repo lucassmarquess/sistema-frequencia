@@ -12,7 +12,7 @@
             mensagem.value = "Email incorreto";
             return;
         } 
-        router.push('/DashBoard');
+        router.push('/DashBoardAluno');
     }
 </script>
 <template>
