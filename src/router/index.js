@@ -3,6 +3,7 @@ import AuthService from '@/services/AuthService.js';
 import Login from "../views/Login.vue";
 import DashBoardAluno from '../views/DashBoardAluno.vue';
 import DashBoardProfessor from '../views/DashBoardProfessor.vue';
+import AlunoProfessor from '@/views/AlunoProfessor.vue';
 import TesteDados from '../views/TesteDados.vue';
 
 const router = createRouter({
@@ -19,6 +20,10 @@ const router = createRouter({
     {
       path: '/DashBoardProfessor',
       component: DashBoardProfessor
+    },
+    {
+      path: '/AlunoProfessor/:id',
+      component: AlunoProfessor
     },
     {
       path: '/Teste',

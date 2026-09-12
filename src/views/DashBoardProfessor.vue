@@ -17,12 +17,14 @@
     const router = useRouter();
 
     const usuario = AuthService.usuarioLogado();
+
     function logout() {
         AuthService.logout();
         router.push('/');
     }
-    
-    
+    function abrirAluno(id) {
+        router.push(`/AlunoProfessor/${id}`);
+    }
 </script>
 <template>
     <h1>Sistema de Frequência</h1><button @click="logout()">Sair</button>
@@ -34,7 +36,7 @@
     </div>
     <p>Alunos:</p>
     <ul>
-        <li v-for="aluno in alunos" :key="aluno.id">
+        <li v-for="aluno in alunos" :key="aluno.id" @click="abrirAluno(aluno.id)">
             {{ aluno.nome }} | Frequêncis: {{FrequenciaService.calcularFrequenciaGeral(aluno.id)}}%
         </li>
     </ul>
