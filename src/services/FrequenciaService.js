@@ -28,10 +28,27 @@ export default class FrequenciaService {
         const total = totalPresencas / totalMateria * 100;
         return total;
     }
+    static calcularFrequenciaDeTodos() {
+        const alunos = AlunoService.listar();
+        const aulas = AulaService.listar();
+        const presencas = PresencaService.listar();
+        const totalAlunos = alunos.length;
+        const totalAulas = aulas.length;
+        const totalPresencas = presencas.length;
+        const totalPossibilidades = totalAlunos * totalAulas;
+        const frequencia = totalPresencas / totalPossibilidades * 100;
+        return frequencia;
+    }
     static totalDisciplinas() {
         const aulas = AulaService.listar();
         const disciplinas = aulas.map(aula => aula.disciplina);
         const disciplina = new Set(disciplinas);
         return disciplina;
     }   
+    static totalAulaPorDisciplina(disciplina) {
+        const aulas = AulaService.listar();
+        const disciplinas = aulas.filter(aula => aula.disciplina === disciplina);
+        const totalDisciplina = disciplinas.length;
+        return totalDisciplina; 
+    }
 }

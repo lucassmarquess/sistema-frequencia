@@ -12,7 +12,13 @@
             mensagem.value = "Email incorreto";
             return;
         } 
-        router.push('/DashBoardAluno');
+        const tipo = AuthService.tipoUsuario();
+        if (tipo === "professor") {
+            router.push('/DashBoardProfessor');
+        }
+        if (tipo === "aluno") {
+            router.push('/DashBoardAluno');
+        }
     }
 </script>
 <template>

@@ -1,6 +1,6 @@
 <script setup>
     import { useRouter } from 'vue-router';
-    import AuthService from '../../services/AuthService';
+    import AuthService from '../services/AuthService';
     import FrequenciaService from '@/services/FrequenciaService';
 
 

@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AuthService from '@/services/AuthService.js';
 import Login from "../views/Login.vue";
-import DashBoard from '../views/DashBoard/DashBoardAluno.vue';
+import DashBoardAluno from '../views/DashBoardAluno.vue';
+import DashBoardProfessor from '../views/DashBoardProfessor.vue';
 import TesteDados from '../views/TesteDados.vue';
 
 const router = createRouter({
@@ -13,7 +14,11 @@ const router = createRouter({
     },
     {
       path: '/DashBoardAluno',
-      component: DashBoard
+      component: DashBoardAluno
+    },
+    {
+      path: '/DashBoardProfessor',
+      component: DashBoardProfessor
     },
     {
       path: '/Teste',
@@ -22,7 +27,10 @@ const router = createRouter({
   ],
 })
 router.beforeEach((to, from) => {
-    if (to.path === '/DashBoardAluno' && AuthService.estaAutenticado() === false) {
+    if (to.path === '/DashBoardAluno' && AuthService.estaAutenticado() === false && AuthService.tipoUsuario() === "aluno") {
+        return '/';
+    }
+    if (to.path === '/DashBoardProfessor' && AuthService.estaAutenticado() === false && AuthService.tipoUsuario() === "professor") {
         return '/';
     }
     return true;
