@@ -51,4 +51,9 @@ export default class FrequenciaService {
         const totalDisciplina = disciplinas.length;
         return totalDisciplina; 
     }
+    static aulasDeDisciplina(disciplina) {
+        const aulas = AulaService.listar();
+        const disciplinas = aulas.filter(aula => aula.disciplina === disciplina);
+        return disciplinas; 
+    }
 }

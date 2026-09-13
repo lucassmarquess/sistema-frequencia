@@ -5,6 +5,7 @@ import DashBoardAluno from '../views/DashBoardAluno.vue';
 import DashBoardProfessor from '../views/DashBoardProfessor.vue';
 import AlunoProfessor from '@/views/AlunoProfessor.vue';
 import TesteDados from '../views/TesteDados.vue';
+import DisciplinaProfessor from '@/views/DisciplinaProfessor.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,6 +25,10 @@ const router = createRouter({
     {
       path: '/AlunoProfessor/:id',
       component: AlunoProfessor
+    },
+    {
+      path: '/DisciplinaProfessor/:indice',
+      component: DisciplinaProfessor
     },
     {
       path: '/Teste',
