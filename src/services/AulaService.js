@@ -2,6 +2,7 @@
  * Responsável por realizar operações relacionadas a Aulas.
  */
 import StorageService from "./StorageService";
+import PresencaService from "./PresencaService";
 
 export default class AulaService {
     static cadastrar(aula) {
@@ -28,5 +29,15 @@ export default class AulaService {
         const aulas = AulaService.listar();
         const remocao = aulas.filter(aula => aula.id !== id);
         StorageService.atualizar("aulas", remocao);
+    }
+    static remover(id) {
+        const aulas = AulaService.listar();
+        const remocao = aulas.filter(aula => aula.id !== id);
+        StorageService.atualizar("aulas", remocao);
+        const presencas = PresencaService.listar();
+        const remocaoPresencas = presencas.filter(
+            presenca => presenca.aulaId !== id
+        );
+        StorageService.atualizar("presencas", remocaoPresencas);
     }
 }

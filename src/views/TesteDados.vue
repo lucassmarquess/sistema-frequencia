@@ -3,15 +3,23 @@ import StorageService from "@/services/StorageService";
 import Aluno from "../models/Aluno";
 import Aula from "../models/Aula";
 import Presenca from "../models/Presenca";
+import Usuario from "../models/Usuario";
 
 import AlunoService from "../services/AlunoService";
 import AulaService from "../services/AulaService";
 import PresencaService from "../services/PresencaService";
 import FrequenciaService from "../services/FrequenciaService";
+import UsuarioService from "../services/UsuarioService";
 
 StorageService.remover("alunos");
 StorageService.remover("aulas");
 StorageService.remover("presencas");
+StorageService.remover("usuarios");
+
+// Professor
+UsuarioService.cadastrar(
+    new Usuario(4, "Joseph", "joseph@gmail.com", "professor")
+);
 
 // Alunos
 
@@ -79,42 +87,47 @@ AulaService.cadastrar(
 );
 
 
-// Presenças do Lucas
+// Presenças
 
+// Lucas
 PresencaService.cadastrar(
-    new Presenca(1, 1, 1, "2026-09-01T08:00")
+    new Presenca(1, 1, 1, "2026-09-01T08:00", "presente")
 );
 
 PresencaService.cadastrar(
-    new Presenca(2, 1, 2, "2026-09-02T08:00")
+    new Presenca(2, 1, 5, "2026-09-01T10:00", "presente")
 );
 
 PresencaService.cadastrar(
-    new Presenca(3, 1, 4, "2026-09-04T08:00")
+    new Presenca(3, 1, 9, "2026-09-01T14:00", "presente")
+);
+
+
+// João
+PresencaService.cadastrar(
+    new Presenca(4, 2, 2, "2026-09-02T08:00", "presente")
 );
 
 PresencaService.cadastrar(
-    new Presenca(4, 1, 5, "2026-09-01T10:00")
+    new Presenca(5, 2, 6, "2026-09-02T10:00", "presente")
 );
 
 PresencaService.cadastrar(
-    new Presenca(5, 1, 6, "2026-09-02T10:00")
+    new Presenca(6, 2, 10, "2026-09-02T14:00", "presente")
+);
+
+
+// Maria
+PresencaService.cadastrar(
+    new Presenca(7, 3, 3, "2026-09-03T08:00", "presente")
 );
 
 PresencaService.cadastrar(
-    new Presenca(6, 1, 7, "2026-09-03T10:00")
+    new Presenca(8, 3, 7, "2026-09-03T10:00", "presente")
 );
 
 PresencaService.cadastrar(
-    new Presenca(7, 1, 8, "2026-09-04T10:00")
-);
-
-PresencaService.cadastrar(
-    new Presenca(8, 1, 9, "2026-09-01T14:00")
-);
-
-PresencaService.cadastrar(
-    new Presenca(9, 1, 11, "2026-09-03T14:00")
+    new Presenca(9, 3, 11, "2026-09-03T14:00", "presente")
 );
 
 console.log("Dados cadastrados com sucesso!");

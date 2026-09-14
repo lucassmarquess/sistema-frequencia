@@ -73,4 +73,14 @@ export default class PresencaService {
             presenca.id !== id
         );
     }
+    static buscarPorAlunoEAula(alunoId, aulaId) {
+        const presencas = PresencaService.listar();
+        const presenca = presencas.find(
+            presenca =>
+                presenca.alunoId === alunoId &&
+                presenca.aulaId === aulaId
+        );
+
+        return presenca;
+    }
 }
