@@ -20,6 +20,9 @@ StorageService.remover("usuarios");
 UsuarioService.cadastrar(
     new Usuario(4, "Joseph", "joseph@gmail.com", "professor")
 );
+UsuarioService.cadastrar(
+    new Usuario(1, "Lucas Marques", "lucas@email.com", "aluno")
+);
 
 // Alunos
 

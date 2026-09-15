@@ -16,7 +16,8 @@
         const agora = new Date();
         const dataHora = agora.toISOString().slice(0, 16);
         const totalPresencas = PresencaService.listar();
-        const novoId = totalPresencas.length + 1;
+        const ultimaPresenca = totalPresencas.at(-1);
+        const novoId = ultimaPresenca.id + 1;
 
         const router = useRouter();
         const disciplinas = FrequenciaService.totalDisciplinas();

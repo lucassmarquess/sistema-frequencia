@@ -26,9 +26,18 @@
         router.push(`/AlunoProfessor/${id}`);
     }
     function abrirDisciplina(indice) {
-        console.log(indice);
         router.push(`/DisciplinaProfessor/${indice}`);
     }
+    const formatarNumero = (numero) => {
+        if (Number.isInteger(numero)) {
+            return numero.toString();
+        }
+
+        return numero.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    };
 </script>
 <template>
     <h1>Sistema de Frequência</h1><button @click="logout()">Sair</button>
@@ -36,12 +45,12 @@
     <div class="container">
         <div><p>Alunos</p><p>{{ totalAlunos }}</p></div>
         <div><p>Aulas</p><p>{{ totalAulas }}</p></div>
-        <div><p>Frequência</p><p>{{ frequenciaGeral }}%</p></div>
+        <div><p>Frequência</p><p>{{ formatarNumero(frequenciaGeral)}}%</p></div>
     </div>
     <p>Alunos:</p>
     <ul>
         <li v-for="aluno in alunos" :key="aluno.id" @click="abrirAluno(aluno.id)">
-            {{ aluno.nome }} | Frequêncis: {{FrequenciaService.calcularFrequenciaGeral(aluno.id)}}%
+            {{ aluno.nome }} | Frequêncis: {{ formatarNumero(FrequenciaService.calcularFrequenciaGeral(aluno.id)) }}%
         </li>
     </ul>
     <p>Minhas Disciplinas:</p>

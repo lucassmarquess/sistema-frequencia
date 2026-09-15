@@ -15,16 +15,15 @@
 
     const aulas = FrequenciaService.totalAulaPorDisciplina(disciplina);
     const Aulas = FrequenciaService.aulasDeDisciplina(disciplina);
-    console.log(Aulas);
 
     const totalDeAulas = AulaService.listar();
-    const ultimaAula = totalDeAulas[totalDeAulas.length - 1];
+    const ultimaAula = totalDeAulas.at(-1);
     const token = ultimaAula.token;
     const numero = Number(token.replace("token", ""));
     const novoToken = "token" + (numero + 1);
     const data = new Date().toISOString().split('T')[0];
     const horario = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
-    const novoId = totalDeAulas.length + 1;
+    const novoId = ultimaAula.id + 1;
     
     function voltar() {
         router.push('/DashBoardProfessor');
