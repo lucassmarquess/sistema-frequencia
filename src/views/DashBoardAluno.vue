@@ -14,6 +14,10 @@
         router.push('/');
     }
     const formatarNumero = (numero) => {
+        if (Number.isNaN(numero)) {
+            return "--";
+        }
+
         if (Number.isInteger(numero)) {
             return numero.toString();
         }

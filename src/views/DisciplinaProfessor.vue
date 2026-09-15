@@ -32,7 +32,6 @@
         AulaService.cadastrar(
             new Aula(novoId, disciplina, data, horario, "aberta", novoToken)
         );
-        console.log("nova aula");
     }
     function verPresenca(id) {
         router.push(`/PresencasProfessor/${id}`);

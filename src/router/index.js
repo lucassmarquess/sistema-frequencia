@@ -7,6 +7,7 @@ import AlunoProfessor from '@/views/AlunoProfessor.vue';
 import TesteDados from '../views/TesteDados.vue';
 import DisciplinaProfessor from '@/views/DisciplinaProfessor.vue';
 import PresencasProfessor from '@/views/PresencasProfessor.vue';
+import CriarAula from '@/views/CriarAula.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,10 @@ const router = createRouter({
     {
       path: '/PresencasProfessor/:id',
       component: PresencasProfessor
+    },
+    {
+      path: '/CriarAula',
+      component: CriarAula
     },
     {
       path: '/Teste',

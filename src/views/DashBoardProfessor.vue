@@ -28,7 +28,14 @@
     function abrirDisciplina(indice) {
         router.push(`/DisciplinaProfessor/${indice}`);
     }
+    function novaDisciplina() {
+        router.push("/CriarAula");
+    }
     const formatarNumero = (numero) => {
+        if (Number.isNaN(numero)) {
+            return "--";
+        }
+
         if (Number.isInteger(numero)) {
             return numero.toString();
         }
@@ -62,7 +69,7 @@
             </li>
         </div>
     </ul>
-    <button>+ Criar aula em nova Disciplina</button>
+    <button @click="novaDisciplina()">+ Criar aula em nova Disciplina</button>
 </template>
 <style>
     div{
