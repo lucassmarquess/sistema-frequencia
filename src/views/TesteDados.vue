@@ -23,6 +23,9 @@ UsuarioService.cadastrar(
 UsuarioService.cadastrar(
     new Usuario(1, "Lucas Marques", "lucas@email.com", "aluno")
 );
+UsuarioService.cadastrar(
+    new Usuario(67, "Fodão", "fodao@email.com", "admin")
+);
 
 // Alunos
 

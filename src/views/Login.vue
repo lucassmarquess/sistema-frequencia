@@ -2,10 +2,15 @@
     import AuthService from "../services/AuthService";
     import { useRouter } from "vue-router";
     import { ref } from "vue";
+    import UsuarioService from "@/services/UsuarioService";
+
     
     const email = ref("");
     const mensagem = ref("");
     const router = useRouter();
+
+    console.log(UsuarioService.listar());
+    
     function login() {
         const resultado = AuthService.login(email.value);
         if (resultado === false) {
@@ -18,6 +23,9 @@
         }
         if (tipo === "aluno") {
             router.push('/DashBoardAluno');
+        }
+        if (tipo === "admin") {
+            router.push("/AdminDashBoard");
         }
     }
 </script>

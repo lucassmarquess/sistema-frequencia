@@ -42,7 +42,7 @@ export default class AuthService{
         if (tipo === "professor") {
             return "professor";
         }
-        return "aluno";
+        return usuario.tipo;
     }
     static ehProfessor() {
         const autenticacao = AuthService.estaAutenticado();

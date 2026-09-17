@@ -38,4 +38,9 @@ export default class UsuarioService {
         StorageService.atualizar("usuarios", remocao);
         return "Remoção realizada com sucesso";
     }
+    static buscaPorTipo(tipo) {
+        const usuarios = UsuarioService.listar();
+        const usuariotipo = usuarios.filter(usuario => usuario.tipo === tipo);
+        return usuariotipo;
+    }
 }

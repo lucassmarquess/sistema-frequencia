@@ -11,6 +11,10 @@ import TesteDados from '../views/TesteDados.vue';
 import DisciplinaProfessor from '@/views/DisciplinaProfessor.vue';
 import PresencasProfessor from '@/views/PresencasProfessor.vue';
 import CriarAula from '@/views/CriarAula.vue';
+import AdminDashBoard from '@/views/AdminDashBoard.vue';
+import CriarUsuario from '@/views/CriarUsuario.vue';
+import EditarUsuario from '@/views/EditarUsuario.vue';
+import ExcluirUsuario from '@/views/ExcluirUsuario.vue';
 
 
 const router = createRouter({
@@ -24,58 +28,90 @@ const router = createRouter({
       path: '/DashBoardAluno',
       component: DashBoardAluno,
       meta: {
-          requerAutenticacao: true,
-          tipo: 'aluno'
+        requerAutenticacao: true,
+        tipo: 'aluno'
       }
     },
     {
       path: '/DashBoardProfessor',
       component: DashBoardProfessor,
       meta: {
-          requerAutenticacao: true,
-          tipo: 'professor'
+        requerAutenticacao: true,
+        tipo: 'professor'
       }
     },
     {
-        path: '/AlunoProfessor/:id',
-        component: AlunoProfessor,
-        meta: {
-            requerAutenticacao: true,
-            tipo: 'professor'
-        }
+      path: '/AlunoProfessor/:id',
+      component: AlunoProfessor,
+      meta: {
+        requerAutenticacao: true,
+        tipo: 'professor'
+      }
     },
     {
       path: '/DisciplinaProfessor/:indice',
       component: DisciplinaProfessor,
       meta: {
-          requerAutenticacao: true,
-          tipo: 'professor'
+        requerAutenticacao: true,
+        tipo: 'professor'
       }
     },
     {
       path: '/PresencasProfessor/:id',
       component: PresencasProfessor,
       meta: {
-          requerAutenticacao: true,
-          tipo: 'professor'
+        requerAutenticacao: true,
+        tipo: 'professor'
       }
     },
     {
       path: '/CriarAula',
       component: CriarAula,
       meta: {
-          requerAutenticacao: true,
-          tipo: 'professor'
+        requerAutenticacao: true,
+        tipo: 'professor'
       }
     },
     {
       path: '/Teste',
       component: TesteDados,
       meta: {
-          requerAutenticacao: true
+        requerAutenticacao: false
+      }
+    },
+    {
+      path: '/AdminDashBoard',
+      component: AdminDashBoard,
+      meta: {
+        requerAutenticacao: true,
+        tipo: 'admin'
+      }
+    },
+    {
+      path: '/CriarUsuario',
+      component: CriarUsuario,
+      meta: {
+        requerAutenticacao: true,
+        tipo: 'admin'
+      }
+    },
+    {
+      path: '/EditarUsuario/:id',
+      component: EditarUsuario,
+      meta: {
+        requerAutenticacao: true,
+        tipo: 'admin'
+      }
+    },
+    {
+      path: '/ExcluirUsuario/:id',
+      component: ExcluirUsuario,
+      meta: {
+        requerAutenticacao: true,
+        tipo: 'admin'
       }
     }
-    ],
+  ],
 })
 router.beforeEach((to, from) => {
 
