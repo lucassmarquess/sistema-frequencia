@@ -151,6 +151,15 @@ console.log(
     FrequenciaService.calcularFrequenciaDisciplina(1, "Engenharia de Software")
 );
 console.log(FrequenciaService.totalDisciplinas());
+
+StorageService.remover("alunos");
+StorageService.remover("aulas");
+StorageService.remover("presencas");
+StorageService.remover("usuarios");
+
+UsuarioService.cadastrar(
+    new Usuario(1, "Fodão", "fodao@email.com", "admin")
+);
 </script>
 
 <template>
