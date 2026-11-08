@@ -1,20 +1,23 @@
+
 <script setup>
     import { useRouter } from 'vue-router';
     import AuthService from '../services/AuthService';
     import FrequenciaService from '@/services/FrequenciaService';
 
-
     const router = useRouter();
     const usuario = AuthService.usuarioLogado();
+
     const frequenciaTotal = FrequenciaService.calcularFrequenciaGeral(usuario.id);
+    const ausenciasJustificadas = FrequenciaService.calcularAusenciasJustificadas(usuario.id);
     const disciplinas = FrequenciaService.totalDisciplinas();
-    
+
     function logout() {
         AuthService.logout();
         router.push('/');
     }
+
     const formatarNumero = (numero) => {
-        if (Number.isNaN(numero)) {
+        if (numero === null || numero === undefined || Number.isNaN(numero)) {
             return "--";
         }
 
@@ -28,16 +31,32 @@
         });
     };
 </script>
+
 <template>
     <h1>DashBoard do Aluno</h1>
+
     <p>Olá, {{ usuario.nome }}</p>
-    <p>Sua Frequência Geral: {{ formatarNumero(frequenciaTotal) }}%</p>
+
+    <p>
+        Frequência Geral:
+        {{ formatarNumero(frequenciaTotal) }}%
+    </p>
+
+    <p>
+        Ausências Justificadas:
+        {{ formatarNumero(ausenciasJustificadas) }}%
+    </p>
+
     <br>
+
     <p>Minhas Disciplinas</p>
+
     <ul>
         <li v-for="disciplina in disciplinas" :key="disciplina">
-            {{ disciplina }}: {{ formatarNumero(FrequenciaService.calcularFrequenciaDisciplina(usuario.id, disciplina)) }}%
+            {{ disciplina }}:
+            {{ formatarNumero(FrequenciaService.calcularFrequenciaDisciplina(usuario.id, disciplina)) }}%
         </li>
     </ul>
+
     <button @click="logout">Sair</button>
 </template>
