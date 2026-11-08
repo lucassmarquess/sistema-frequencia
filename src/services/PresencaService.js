@@ -22,8 +22,19 @@ export default class PresencaService {
             return "Aula não existe";
         }
 
-        if (aula.status !== "aberta") {
-            return "Aula encerrada";
+        // Depois do encerramento, somente justificativas são permitidas.
+        if (
+            aula.status !== "aberta" &&
+            presenca.status !== "justificada"
+        ) {
+            return "Aula encerrada: somente justificativas são permitidas";
+        }
+
+        if (
+            presenca.status !== "presente" &&
+            presenca.status !== "justificada"
+        ) {
+            return "Status de presença inválido";
         }
 
         const verificar = PresencaService.verificarExistencia(
@@ -51,11 +62,9 @@ export default class PresencaService {
     static buscarPorId(id) {
         const presencas = PresencaService.listar();
 
-        const elemento = presencas.find(
+        return presencas.find(
             presenca => presenca.id === id
         );
-
-        return elemento;
     }
 
     static atualizar(id, presenca) {
@@ -72,8 +81,28 @@ export default class PresencaService {
             return "Aula não existe";
         }
 
-        if (aula.status !== "aberta") {
-            return "Aula encerrada";
+        if (
+            aula.status !== "aberta" &&
+            presenca.status !== "justificada"
+        ) {
+            return "Aula encerrada: somente justificativas são permitidas";
+        }
+
+        if (
+            presenca.status !== "presente" &&
+            presenca.status !== "justificada"
+        ) {
+            return "Status de presença inválido";
+        }
+
+        const presencas = PresencaService.listar();
+
+        const indice = presencas.findIndex(
+            elemento => elemento.id === id
+        );
+
+        if (indice === -1) {
+            return "Presença inexistente";
         }
 
         const verificacao = PresencaService.verificarExistencia(
@@ -86,16 +115,6 @@ export default class PresencaService {
             return "Presença não pode ser duplicada";
         }
 
-        const presencas = PresencaService.listar();
-
-        const indice = presencas.findIndex(
-            presenca => presenca.id === id
-        );
-
-        if (indice === -1) {
-            return "Presença inexistente";
-        }
-
         presencas[indice] = presenca;
 
         StorageService.atualizar("presencas", presencas);
@@ -106,11 +125,11 @@ export default class PresencaService {
     static remover(id) {
         const presencas = PresencaService.listar();
 
-        const verificacao = presencas.findIndex(
+        const indice = presencas.findIndex(
             presenca => presenca.id === id
         );
 
-        if (verificacao === -1) {
+        if (indice === -1) {
             return "Presença inexistente";
         }
 
@@ -137,12 +156,10 @@ export default class PresencaService {
     static buscarPorAlunoEAula(alunoId, aulaId) {
         const presencas = PresencaService.listar();
 
-        const presenca = presencas.find(
+        return presencas.find(
             presenca =>
                 presenca.alunoId === alunoId &&
                 presenca.aulaId === aulaId
         );
-
-        return presenca;
     }
 }

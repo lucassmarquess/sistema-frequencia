@@ -1,43 +1,81 @@
+
 /**
  * Responsável por realizar operações relacionadas a Aulas.
  */
 import StorageService from "./StorageService";
-import PresencaService from "./PresencaService";
 
 export default class AulaService {
+
     static cadastrar(aula) {
-        const dados = AulaService.listar();
-        dados.push(aula);
-        StorageService.atualizar("aulas", dados);
+        const aulas = AulaService.listar();
+
+        const existente = aulas.some(
+            elemento => elemento.id === aula.id
+        );
+
+        if (existente) {
+            return "Já existe uma aula com esse ID";
+        }
+
+        aulas.push(aula);
+        StorageService.atualizar("aulas", aulas);
+
+        return "Aula cadastrada com sucesso";
     }
+
     static listar() {
-        const aulas = StorageService.buscar("aulas");
-        return aulas;
+        return StorageService.buscar("aulas");
     }
+
     static buscarPorId(id) {
         const aulas = AulaService.listar();
-        const elemento = aulas.find(aula => aula.id === id);
-        return elemento;
+
+        return aulas.find(aula => aula.id === id);
     }
+
     static atualizar(id, aula) {
         const aulas = AulaService.listar();
-        const indice  = aulas.findIndex(aula => aula.id === id);
-        aulas[indice ] = aula;
+
+        const indice = aulas.findIndex(
+            elemento => elemento.id === id
+        );
+
+        if (indice === -1) {
+            return "Aula inexistente";
+        }
+
+        aulas[indice] = aula;
         StorageService.atualizar("aulas", aulas);
+
+        return "Aula atualizada com sucesso";
     }
+
     static remover(id) {
         const aulas = AulaService.listar();
-        const remocao = aulas.filter(aula => aula.id !== id);
+
+        const indice = aulas.findIndex(
+            aula => aula.id === id
+        );
+
+        if (indice === -1) {
+            return "Aula inexistente";
+        }
+
+        const remocao = aulas.filter(
+            aula => aula.id !== id
+        );
+
         StorageService.atualizar("aulas", remocao);
-    }
-    static remover(id) {
-        const aulas = AulaService.listar();
-        const remocao = aulas.filter(aula => aula.id !== id);
-        StorageService.atualizar("aulas", remocao);
-        const presencas = PresencaService.listar();
+
+        // Remove também as presenças relacionadas à aula.
+        const presencas = StorageService.buscar("presencas");
+
         const remocaoPresencas = presencas.filter(
             presenca => presenca.aulaId !== id
         );
+
         StorageService.atualizar("presencas", remocaoPresencas);
+
+        return "Aula removida com sucesso";
     }
 }

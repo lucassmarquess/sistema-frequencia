@@ -1,70 +1,133 @@
+
 <script setup>
-    import Aula from '@/models/Aula';
-    import AulaService from '@/services/AulaService';   
-    import FrequenciaService from '@/services/FrequenciaService';
-    import { ref } from 'vue';
-    import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-    const router = useRouter();
+import Aula from '@/models/Aula';
+import AulaService from '@/services/AulaService';
+import FrequenciaService from '@/services/FrequenciaService';
 
-    const disciplina = ref("");
-    const materia = ref("");
-    const disciplinas = FrequenciaService.totalDisciplinas();
+const router = useRouter();
 
-    const totalDeAulas = AulaService.listar();
+const disciplina = ref("");
+const materia = ref("");
+const erro = ref("");
 
-    let novoId;
-    let novoToken;
+const disciplinas = FrequenciaService.totalDisciplinas();
 
-    if (totalDeAulas.length === 0) {
-        novoId = 1;
-        novoToken = "token1";
+const aulas = AulaService.listar();
+
+// Gera o próximo ID considerando todas as aulas existentes.
+const novoId = aulas.length === 0
+    ? 1
+    : Math.max(...aulas.map(aula => Number(aula.id) || 0)) + 1;
+
+// Gera um token sequencial.
+const numerosTokens = aulas.map(aula => {
+    const numero = Number(
+        String(aula.token ?? "").replace("token", "")
+    );
+
+    return Number.isFinite(numero) ? numero : 0;
+});
+
+const novoToken = "token" + (
+    Math.max(0, ...numerosTokens) + 1
+);
+
+// Obtém a data e o horário locais.
+const agora = new Date();
+
+const data = [
+    agora.getFullYear(),
+    String(agora.getMonth() + 1).padStart(2, "0"),
+    String(agora.getDate()).padStart(2, "0")
+].join("-");
+
+const horario = [
+    String(agora.getHours()).padStart(2, "0"),
+    String(agora.getMinutes()).padStart(2, "0")
+].join(":");
+
+function criar() {
+    erro.value = "";
+
+    let disciplinaEscolhida;
+
+    if (disciplina.value === "nova") {
+        disciplinaEscolhida = materia.value.trim();
     } else {
-        const ultimaAula = totalDeAulas.at(-1);
-        novoId = ultimaAula.id + 1;
-        const numero = Number(ultimaAula.token.replace("token", ""));
-        novoToken = "token" + (numero + 1);
+        disciplinaEscolhida = disciplina.value;
     }
 
-    const data = new Date().toISOString().split('T')[0];
-    const horario = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
-    
+    if (!disciplinaEscolhida) {
+        erro.value = "Selecione ou informe uma disciplina.";
+        return;
+    }
 
-    function Criar() {
-        let disciplinaEscolhida;
-        if (disciplina.value === "nova") {
-            disciplinaEscolhida = materia.value
-        }
-        else {
-            disciplinaEscolhida = disciplina.value;
-        }
-        AulaService.cadastrar(
-            new Aula(novoId, disciplinaEscolhida, data, horario, "aberta", novoToken)
-        );
-        router.push(`/PresencasProfessor/${novoId}`);
+    const novaAula = new Aula(
+        novoId,
+        disciplinaEscolhida,
+        data,
+        horario,
+        "aberta",
+        novoToken
+    );
+
+    const resultado = AulaService.cadastrar(novaAula);
+
+    if (resultado !== "Aula cadastrada com sucesso") {
+        erro.value = resultado;
+        return;
     }
-    function voltar() {
-        router.push("/DashBoardProfessor");
-    }
+
+    router.push(`/PresencasProfessor/${novoId}`);
+}
+
+function voltar() {
+    router.push("/DashBoardProfessor");
+}
 </script>
+
 <template>
     <h1>Nova Aula</h1>
-    <form>
+
+    <form @submit.prevent="criar">
         <label for="disciplina">Disciplina:</label>
 
         <select id="disciplina" v-model="disciplina">
-            <option
-                v-for="disciplina in disciplinas" :key="disciplina":value="disciplina">
-                {{ disciplina }}
+            <option disabled value="">
+                Selecione uma disciplina
             </option>
+
+            <option
+                v-for="item in disciplinas"
+                :key="item"
+                :value="item"
+            >
+                {{ item }}
+            </option>
+
             <option value="nova">+ Nova disciplina</option>
-        </select><br>
+        </select>
+
         <div v-if="disciplina === 'nova'">
-            <input type="text" placeholder="Nova Disciplina" v-model="materia">
+            <input
+                type="text"
+                placeholder="Nova Disciplina"
+                v-model="materia"
+            >
         </div>
+
         <p>Data: {{ data }}</p>
         <p>Horário: {{ horario }}</p>
-        <button @click="Criar()">Criar</button>
+
+        <p v-if="erro">{{ erro }}</p>
+
+        <button type="submit">Criar Aula</button>
     </form>
-    <button @click="voltar()">Voltar</button>
+
+    <button type="button" @click="voltar">
+        Voltar
+    </button>
 </template>
