@@ -24,7 +24,7 @@ UsuarioService.cadastrar(
     new Usuario(1, "Lucas Marques", "lucas@email.com", "aluno")
 );
 UsuarioService.cadastrar(
-    new Usuario(67, "Fodão", "fodao@email.com", "admin")
+    new Usuario(67, "Admin", "admin@email.com", "admin")
 );
 
 // Alunos
@@ -152,14 +152,6 @@ console.log(
 );
 console.log(FrequenciaService.totalDisciplinas());
 
-StorageService.remover("alunos");
-StorageService.remover("aulas");
-StorageService.remover("presencas");
-StorageService.remover("usuarios");
-
-UsuarioService.cadastrar(
-    new Usuario(1, "Fodão", "fodao@email.com", "admin")
-);
 </script>
 
 <template>

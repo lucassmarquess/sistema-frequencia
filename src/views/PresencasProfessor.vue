@@ -1,6 +1,6 @@
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import AulaService from '@/services/AulaService';
@@ -8,6 +8,9 @@ import AlunoService from '@/services/AlunoService';
 import PresencaService from '@/services/PresencaService';
 import Presenca from '@/models/Presenca';
 import FrequenciaService from '@/services/FrequenciaService';
+import QrCodeService from '@/services/QrCodeService';
+
+import QRCode from 'qrcode';
 
 const route = useRoute();
 const router = useRouter();
@@ -28,6 +31,21 @@ const indice = disciplinas.findIndex(
     disciplina => disciplina === aula.value?.disciplina
 );
 
+// Estados relacionados ao QR Code.
+const imagemQrCode = ref("");
+const linkQrCode = ref("");
+const tokenQrCode = ref("");
+const tempoRestante = ref(0);
+
+let intervaloQrCode = null;
+
+const tempoFormatado = computed(() => {
+    const minutos = Math.floor(tempoRestante.value / 60);
+    const segundos = tempoRestante.value % 60;
+
+    return `${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
+});
+
 // Se a aula não existir, retorna ao painel.
 if (!aula.value) {
     router.replace("/DashBoardProfessor");
@@ -36,6 +54,13 @@ if (!aula.value) {
 // Atualiza os registros exibidos na tela.
 function atualizarPresencas() {
     presencas.value = PresencaService.listar();
+}
+
+// Atualiza a lista quando outra aba registra uma presença.
+function observarAlteracoesStorage(evento) {
+    if (evento.key === "presencas") {
+        atualizarPresencas();
+    }
 }
 
 // Gera um ID novo para cada presença.
@@ -85,6 +110,94 @@ function buscarPresenca(alunoId) {
     );
 }
 
+// Atualiza o contador e verifica a expiração.
+function atualizarContador() {
+    const restante = Math.ceil(
+        (Number(QrCodeService.validar(tokenQrCode.value).codigo?.expiraEm || 0) - Date.now()) / 1000
+    );
+
+    if (restante <= 0) {
+        QrCodeService.invalidar(tokenQrCode.value);
+        limparQrCode();
+        mensagem.value = "O QR Code expirou. Gere um novo código se necessário.";
+        return;
+    }
+
+    tempoRestante.value = restante;
+}
+
+// Limpa os dados exibidos do QR Code.
+function limparQrCode() {
+    if (intervaloQrCode !== null) {
+        clearInterval(intervaloQrCode);
+        intervaloQrCode = null;
+    }
+
+    imagemQrCode.value = "";
+    linkQrCode.value = "";
+    tokenQrCode.value = "";
+    tempoRestante.value = 0;
+}
+
+// Gera a imagem do QR Code.
+async function abrirQrCode() {
+    mensagem.value = "";
+
+    if (!aula.value || aula.value.status !== "aberta") {
+        mensagem.value = "Não é possível gerar QR Code para uma aula encerrada.";
+        return;
+    }
+
+    limparQrCode();
+
+    const resultado = QrCodeService.gerar(aulaId);
+
+    if (resultado.sucesso === false) {
+        mensagem.value = resultado.mensagem;
+        return;
+    }
+
+    const token = resultado.codigo.token;
+
+    const baseUrl = import.meta.env.BASE_URL.endsWith("/")
+        ? import.meta.env.BASE_URL
+        : `${import.meta.env.BASE_URL}/`;
+
+    const link = `${window.location.origin}${baseUrl}presenca/${token}`;
+
+    try {
+        const imagem = await QRCode.toDataURL(link, {
+            width: 250,
+            margin: 2
+        });
+
+        tokenQrCode.value = token;
+        linkQrCode.value = link;
+        imagemQrCode.value = imagem;
+
+        atualizarContador();
+
+        intervaloQrCode = setInterval(() => {
+            atualizarContador();
+        }, 1000);
+
+    } catch (erro) {
+        QrCodeService.invalidar(token);
+        mensagem.value = "Não foi possível gerar a imagem do QR Code.";
+        console.error(erro);
+    }
+}
+
+// Encerra manualmente o QR Code.
+function fecharQrCode() {
+    if (tokenQrCode.value !== "") {
+        QrCodeService.invalidar(tokenQrCode.value);
+    }
+
+    limparQrCode();
+    mensagem.value = "QR Code encerrado.";
+}
+
 function encerrarAula() {
     if (!aula.value || aula.value.status !== "aberta") {
         return;
@@ -101,6 +214,9 @@ function encerrarAula() {
     );
 
     if (resultado === "Aula atualizada com sucesso") {
+        QrCodeService.invalidarPorAula(aulaId);
+        limparQrCode();
+
         aula.value = aulaAtual;
         mensagem.value = "Aula encerrada com sucesso.";
     } else {
@@ -176,12 +292,26 @@ function excluir() {
         return;
     }
 
+    limparQrCode();
+
     if (AulaService.listar().length === 0) {
         router.push("/DashBoardProfessor");
     } else {
         voltar();
     }
 }
+
+// Observa alterações no LocalStorage feitas por outras abas.
+window.addEventListener("storage", observarAlteracoesStorage);
+
+// Limpa os eventos e o intervalo quando o professor sai da página.
+onUnmounted(() => {
+    if (intervaloQrCode !== null) {
+        clearInterval(intervaloQrCode);
+    }
+
+    window.removeEventListener("storage", observarAlteracoesStorage);
+});
 </script>
 
 <template>
@@ -232,16 +362,44 @@ function excluir() {
 
         <p v-if="mensagem">{{ mensagem }}</p>
 
-        <button type="button" disabled>
-            Abrir QR Code
-        </button>
-
-        <br>
-
         <div v-if="aula.status === 'aberta'">
+            <button
+                type="button"
+                @click="abrirQrCode"
+            >
+                Abrir QR Code
+            </button>
+
+            <div v-if="imagemQrCode">
+                <h2>QR Code da aula</h2>
+
+                <img
+                    :src="imagemQrCode"
+                    alt="QR Code para registro de presença"
+                    width="250"
+                >
+
+                <p>Tempo restante: {{ tempoFormatado }}</p>
+
+                <p>
+                    Endereço:
+                    <a :href="linkQrCode">{{ linkQrCode }}</a>
+                </p>
+
+                <button
+                    type="button"
+                    @click="fecharQrCode"
+                >
+                    Encerrar QR Code
+                </button>
+            </div>
+
+            <br>
+
             <button type="button" @click="encerrarAula">
                 Encerrar Aula
             </button>
+
             <br>
         </div>
 

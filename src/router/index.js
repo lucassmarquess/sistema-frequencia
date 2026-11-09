@@ -1,3 +1,4 @@
+
 import { createRouter, createWebHistory } from 'vue-router'
 
 import AuthService from '@/services/AuthService.js';
@@ -15,7 +16,7 @@ import AdminDashBoard from '@/views/AdminDashBoard.vue';
 import CriarUsuario from '@/views/CriarUsuario.vue';
 import EditarUsuario from '@/views/EditarUsuario.vue';
 import ExcluirUsuario from '@/views/ExcluirUsuario.vue';
-
+import RegistrarPresenca from '@/views/RegistrarPresenca.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -80,6 +81,13 @@ const router = createRouter({
       }
     },
     {
+      path: '/presenca/:token',
+      component: RegistrarPresenca,
+      meta: {
+        requerAutenticacao: false
+      }
+    },
+    {
       path: '/AdminDashBoard',
       component: AdminDashBoard,
       meta: {
@@ -113,6 +121,7 @@ const router = createRouter({
     }
   ],
 })
+
 router.beforeEach((to, from) => {
 
   // Verifica se a rota exige autenticação
@@ -122,16 +131,18 @@ router.beforeEach((to, from) => {
     if (AuthService.estaAutenticado() === false) {
         return '/';
     }
+
     // Verifica se a rota exige um tipo específico de usuário
     if (to.meta.tipo) {
         const tipoUsuario = AuthService.tipoUsuario();
 
-      // Usuário possui tipo diferente do permitido
-      if (tipoUsuario !== to.meta.tipo) {
-          return '/';
-      }
+        // Usuário possui tipo diferente do permitido
+        if (tipoUsuario !== to.meta.tipo) {
+            return '/';
+        }
     }
   }
+
   // Verifica se a rota AlunoProfessor possui um aluno válido
   if (to.path.startsWith('/AlunoProfessor/')) {
     const id = Number(to.params.id);
@@ -141,6 +152,8 @@ router.beforeEach((to, from) => {
         return '/DashBoardProfessor';
     }
   }
+
   return true;
 });
+
 export default router
