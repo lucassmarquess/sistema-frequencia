@@ -98,6 +98,11 @@ function registrarPresenca() {
         return;
     }
 
+    if (aluno.ativo === false) {
+        mensagem.value = "Este cadastro de aluno está inativo.";
+        return;
+    }
+
     const novaPresenca = new Presenca(
         gerarNovoId(),
         aluno.id,

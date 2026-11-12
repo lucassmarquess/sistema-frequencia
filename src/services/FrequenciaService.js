@@ -98,26 +98,28 @@ export default class FrequenciaService {
         return (totalPresencas / aulasDisciplina.length) * 100;
     }
 
-    static calcularFrequenciaDeTodos() {
-        const alunos = AlunoService.listar();
-        const aulas = AulaService.listar();
-        const presencas = PresencaService.listar();
 
-        const totalPossibilidades = alunos.length * aulas.length;
+static calcularFrequenciaDeTodos() {
+    const alunos = AlunoService.listarAtivos();
+    const aulas = AulaService.listar();
+    const presencas = PresencaService.listar();
 
-        if (totalPossibilidades === 0) {
-            return null;
-        }
+    const totalPossibilidades = alunos.length * aulas.length;
 
-        const totalPresencas = presencas.filter(
-            presenca =>
-                presenca.status === "presente" &&
-                alunos.some(aluno => aluno.id === presenca.alunoId) &&
-                aulas.some(aula => aula.id === presenca.aulaId)
-        ).length;
-
-        return (totalPresencas / totalPossibilidades) * 100;
+    if (totalPossibilidades === 0) {
+        return null;
     }
+
+    const totalPresencas = presencas.filter(
+        presenca =>
+            presenca.status === "presente" &&
+            alunos.some(aluno => aluno.id === presenca.alunoId) &&
+            aulas.some(aula => aula.id === presenca.aulaId)
+    ).length;
+
+    return (totalPresencas / totalPossibilidades) * 100;
+}
+
 
     static totalDisciplinas() {
         const aulas = AulaService.listar();

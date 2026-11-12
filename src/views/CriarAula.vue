@@ -22,19 +22,6 @@ const novoId = aulas.length === 0
     ? 1
     : Math.max(...aulas.map(aula => Number(aula.id) || 0)) + 1;
 
-// Gera um token sequencial.
-const numerosTokens = aulas.map(aula => {
-    const numero = Number(
-        String(aula.token ?? "").replace("token", "")
-    );
-
-    return Number.isFinite(numero) ? numero : 0;
-});
-
-const novoToken = "token" + (
-    Math.max(0, ...numerosTokens) + 1
-);
-
 // Obtém a data e o horário locais.
 const agora = new Date();
 
@@ -70,8 +57,7 @@ function criar() {
         disciplinaEscolhida,
         data,
         horario,
-        "aberta",
-        novoToken
+        "aberta"
     );
 
     const resultado = AulaService.cadastrar(novaAula);

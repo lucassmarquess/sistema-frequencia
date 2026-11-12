@@ -1,86 +1,192 @@
+
 <script setup>
-    import { useRoute } from 'vue-router';
-    import { useRouter } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import { ref } from 'vue';
+
     import UsuarioService from '@/services/UsuarioService';
-    import Usuario from '@/models/Usuario';
     import AlunoService from '@/services/AlunoService';
+
+    import Usuario from '@/models/Usuario';
     import Aluno from '@/models/Aluno';
 
     const router = useRouter();
+    const route = useRoute();
+
+    const id = Number(route.params.id);
+
+    const usuario = UsuarioService.buscarPorId(id);
 
     const mensagem = ref("");
 
-    const route = useRoute();
-    const id = Number(route.params.id);
-    const usuario = UsuarioService.buscarPorId(id);
+    const nome = ref(usuario ? usuario.nome : "");
+    const email = ref(usuario ? usuario.email : "");
+    const tipo = ref(usuario ? usuario.tipo : "");
 
-    const nome = ref(usuario.nome);
-    const email = ref(usuario.email);
-    const tipo = ref(usuario.tipo);
+    // Gera a próxima matrícula considerando todos os alunos.
+    function gerarNovaMatricula() {
+        const alunos = AlunoService.listar();
 
-    const usuarios = UsuarioService.listar();
+        if (alunos.length === 0) {
+            return "2000000";
+        }
 
-    function duplicidade(email) {
-        const jaExiste = usuarios.some(usuario => 
-            usuario.email === email &&
-            usuario.id !== id);
-        return jaExiste;
+        const maiorMatricula = Math.max(
+            ...alunos.map(aluno => Number(aluno.matricula) || 0)
+        );
+
+        return String(maiorMatricula + 1);
     }
 
     function cancelar() {
         router.push("/AdminDashBoard");
     }
-    
+
     function atualizar() {
-        if (nome.value.trim() === "") {
+        mensagem.value = "";
+
+        if (usuario === undefined) {
+            mensagem.value = "Usuário não encontrado";
+            return;
+        }
+
+        const nomeInformado = nome.value.trim();
+        const emailInformado = email.value.trim().toLowerCase();
+
+        if (nomeInformado === "") {
             mensagem.value = "O nome é obrigatório";
             return;
         }
-        if (nome.value.trim().length < 3) {
+
+        if (nomeInformado.length < 3) {
             mensagem.value = "O nome deve conter pelo menos 3 caracteres";
             return;
         }
-        if (email.value.trim() === "") {
-            mensagem.value = "O E-mail é obrigatório";
+
+        if (emailInformado === "") {
+            mensagem.value = "O e-mail é obrigatório";
             return;
         }
-        if (!email.value.includes("@") || !email.value.includes(".")) {
+
+        if (!emailInformado.includes("@") || !emailInformado.includes(".")) {
             mensagem.value = "E-mail inválido";
             return;
         }
-        if (duplicidade(email.value) === true) {
+
+        if (
+            tipo.value !== "aluno" &&
+            tipo.value !== "professor" &&
+            tipo.value !== "admin"
+        ) {
+            mensagem.value = "Selecione um tipo de usuário válido";
+            return;
+        }
+
+        const usuarioExistente = UsuarioService.buscarPorEmail(
+            emailInformado,
+            id
+        );
+
+        if (usuarioExistente !== undefined) {
             mensagem.value = "E-mail já cadastrado";
             return;
         }
+
+        const alunoExistente = AlunoService.buscarPorId(id);
+
+        // Se o usuário está se tornando aluno.
         if (tipo.value === "aluno") {
-            const aluno = AlunoService.buscarPorId(id);
-            console.log("Antes:", AlunoService.listar());
-            AlunoService.atualizar(id,
-                new Aluno(id, nome.value, email.value, aluno.matricula)
+
+            if (alunoExistente !== undefined) {
+
+                // Reativa o cadastro e preserva a matrícula.
+                const alunoAtualizado = new Aluno(
+                    id,
+                    nomeInformado,
+                    emailInformado,
+                    alunoExistente.matricula,
+                    true
+                );
+
+                AlunoService.atualizar(id, alunoAtualizado);
+
+            } else {
+
+                // Cria um cadastro novo para quem nunca foi aluno.
+                const novaMatricula = gerarNovaMatricula();
+
+                const novoAluno = new Aluno(
+                    id,
+                    nomeInformado,
+                    emailInformado,
+                    novaMatricula
+                );
+
+                AlunoService.cadastrar(novoAluno);
+            }
+
+        } else if (alunoExistente !== undefined) {
+
+            // Se deixou de ser aluno, desativa sem excluir o histórico.
+            const alunoAtualizado = new Aluno(
+                id,
+                nomeInformado,
+                emailInformado,
+                alunoExistente.matricula,
+                false
             );
+
+            AlunoService.atualizar(id, alunoAtualizado);
         }
-        UsuarioService.atualizar(id,
-            new Usuario(id, nome.value, email.value, tipo.value)
+
+        const usuarioAtualizado = new Usuario(
+            id,
+            nomeInformado,
+            emailInformado,
+            tipo.value
         );
-        console.log("Depois:", AlunoService.listar());
+
+        const resultado = UsuarioService.atualizar(
+            id,
+            usuarioAtualizado
+        );
+
+        if (resultado !== "Usuário atualizado com sucesso") {
+            mensagem.value = resultado;
+            return;
+        }
+
         router.push("/AdminDashBoard");
     }
 </script>
 
 <template>
     <h1>Editar Usuário</h1>
-    <label>Nome:</label><br>
-    <input type="text" v-model="nome"><br>
-    <label>Email:</label><br>
-    <input type="text" v-model="email"><br>
-    <label>Tipo:</label><br>
-    <select v-model="tipo"> 
-        <option value="aluno">Aluno</option>
-        <option value="professor">Professor</option>
-        <option value="admin">Admin</option>
-    </select><br><br>
-    <button @click="cancelar()">Cancelar</button>
-    <button @click="atualizar()">Salvar</button>
-    <p>{{ mensagem }}</p>
+
+    <div v-if="usuario">
+        <label>Nome:</label><br>
+        <input type="text" v-model="nome"><br>
+
+        <label>E-mail:</label><br>
+        <input type="email" v-model="email"><br>
+
+        <label>Tipo:</label><br>
+
+        <select v-model="tipo">
+            <option value="aluno">Aluno</option>
+            <option value="professor">Professor</option>
+            <option value="admin">Admin</option>
+        </select>
+
+        <br><br>
+
+        <button @click="cancelar()">Cancelar</button>
+        <button @click="atualizar()">Salvar</button>
+
+        <p>{{ mensagem }}</p>
+    </div>
+
+    <div v-else>
+        <p>Usuário não encontrado.</p>
+        <button @click="cancelar()">Voltar</button>
+    </div>
 </template>

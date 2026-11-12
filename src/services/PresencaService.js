@@ -9,10 +9,15 @@ import AulaService from "./AulaService";
 export default class PresencaService {
 
     static cadastrar(presenca) {
-        const alunoId = presenca.alunoId;
+        const aluno = AlunoService.buscarPorId(presenca.alunoId);
 
-        if (AlunoService.buscarPorId(alunoId) === undefined) {
+        if (aluno === undefined) {
             return "Aluno não existe";
+        }
+
+        // Alunos inativos não podem registrar novas presenças.
+        if (aluno.ativo === false) {
+            return "Aluno inativo: registro de presença não permitido";
         }
 
         const aulaId = presenca.aulaId;
@@ -38,7 +43,7 @@ export default class PresencaService {
         }
 
         const verificar = PresencaService.verificarExistencia(
-            alunoId,
+            presenca.alunoId,
             aulaId
         );
 
@@ -68,14 +73,32 @@ export default class PresencaService {
     }
 
     static atualizar(id, presenca) {
-        const alunoId = presenca.alunoId;
+        const presencas = PresencaService.listar();
 
-        if (AlunoService.buscarPorId(alunoId) === undefined) {
+        const indice = presencas.findIndex(
+            elemento => elemento.id === id
+        );
+
+        if (indice === -1) {
+            return "Presença inexistente";
+        }
+
+        const aluno = AlunoService.buscarPorId(presenca.alunoId);
+
+        if (aluno === undefined) {
             return "Aluno não existe";
         }
 
-        const aulaId = presenca.aulaId;
-        const aula = AulaService.buscarPorId(aulaId);
+        // Não permite transferir uma presença para um aluno inativo.
+        // A edição de um registro histórico do próprio aluno continua permitida.
+        if (
+            aluno.ativo === false &&
+            presencas[indice].alunoId !== presenca.alunoId
+        ) {
+            return "Aluno inativo: alteração de presença não permitida";
+        }
+
+        const aula = AulaService.buscarPorId(presenca.aulaId);
 
         if (aula === undefined) {
             return "Aula não existe";
@@ -95,19 +118,9 @@ export default class PresencaService {
             return "Status de presença inválido";
         }
 
-        const presencas = PresencaService.listar();
-
-        const indice = presencas.findIndex(
-            elemento => elemento.id === id
-        );
-
-        if (indice === -1) {
-            return "Presença inexistente";
-        }
-
         const verificacao = PresencaService.verificarExistencia(
-            alunoId,
-            aulaId,
+            presenca.alunoId,
+            presenca.aulaId,
             id
         );
 

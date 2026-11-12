@@ -1,12 +1,14 @@
 
 <script setup>
     import { useRouter } from 'vue-router';
+
     import AlunoService from '@/services/AlunoService';
     import AulaService from '@/services/AulaService';
     import FrequenciaService from '@/services/FrequenciaService';
     import AuthService from '@/services/AuthService';
 
-    const alunos = AlunoService.listar();
+    // Lista somente os alunos ativos.
+    const alunos = AlunoService.listarAtivos();
     const totalAlunos = alunos.length;
 
     const aulas = AulaService.listar();
@@ -36,7 +38,11 @@
     }
 
     const formatarNumero = (numero) => {
-        if (numero === null || numero === undefined || Number.isNaN(numero)) {
+        if (
+            numero === null ||
+            numero === undefined ||
+            Number.isNaN(numero)
+        ) {
             return "--";
         }
 
@@ -53,6 +59,7 @@
 
 <template>
     <h1>Sistema de Frequência</h1>
+
     <button @click="logout">Sair</button>
 
     <p>Olá, professor: {{ usuario.nome }}</p>
@@ -83,7 +90,8 @@
             @click="abrirAluno(aluno.id)"
         >
             {{ aluno.nome }} |
-            Frequência: {{ formatarNumero(FrequenciaService.calcularFrequenciaGeral(aluno.id)) }}%
+            Frequência:
+            {{ formatarNumero(FrequenciaService.calcularFrequenciaGeral(aluno.id)) }}%
         </li>
     </ul>
 
@@ -96,7 +104,8 @@
             @click="abrirDisciplina(indice)"
         >
             {{ disciplina }} <br>
-            Aulas: {{ FrequenciaService.totalAulaPorDisciplina(disciplina) }}
+            Aulas:
+            {{ FrequenciaService.totalAulaPorDisciplina(disciplina) }}
         </li>
     </ul>
 

@@ -63,6 +63,12 @@ function observarAlteracoesStorage(evento) {
     }
 }
 
+// Verifica se o aluno está ativo.
+// Alunos antigos sem a propriedade ativo são considerados ativos.
+function alunoAtivo(aluno) {
+    return aluno.ativo !== false;
+}
+
 // Gera um ID novo para cada presença.
 function gerarNovoId() {
     const registros = PresencaService.listar();
@@ -112,8 +118,16 @@ function buscarPresenca(alunoId) {
 
 // Atualiza o contador e verifica a expiração.
 function atualizarContador() {
+    const resultado = QrCodeService.validar(tokenQrCode.value);
+
+    if (resultado.valido === false) {
+        limparQrCode();
+        mensagem.value = resultado.mensagem;
+        return;
+    }
+
     const restante = Math.ceil(
-        (Number(QrCodeService.validar(tokenQrCode.value).codigo?.expiraEm || 0) - Date.now()) / 1000
+        (resultado.codigo.expiraEm - Date.now()) / 1000
     );
 
     if (restante <= 0) {
@@ -225,6 +239,15 @@ function encerrarAula() {
 }
 
 function marcarPresenca(alunoId) {
+    const aluno = alunos.value.find(
+        elemento => elemento.id === alunoId
+    );
+
+    if (!aluno || !alunoAtivo(aluno)) {
+        mensagem.value = "Não é possível registrar presença para um aluno inativo.";
+        return;
+    }
+
     if (aula.value.status !== "aberta") {
         mensagem.value = "Não é possível marcar presença em uma aula encerrada.";
         return;
@@ -249,6 +272,15 @@ function marcarPresenca(alunoId) {
 }
 
 function justificarFalta(alunoId) {
+    const aluno = alunos.value.find(
+        elemento => elemento.id === alunoId
+    );
+
+    if (!aluno || !alunoAtivo(aluno)) {
+        mensagem.value = "Não é possível justificar falta para um aluno inativo.";
+        return;
+    }
+
     const novaPresenca = new Presenca(
         gerarNovoId(),
         alunoId,
@@ -292,6 +324,9 @@ function excluir() {
         return;
     }
 
+    // Invalida os QR Codes relacionados à aula excluída.
+    QrCodeService.invalidarPorAula(aulaId);
+
     limparQrCode();
 
     if (AulaService.listar().length === 0) {
@@ -331,6 +366,14 @@ onUnmounted(() => {
 
                 <div v-if="possuiPresenca(aluno.id)">
                     {{ buscarPresenca(aluno.id).status }}
+
+                    <span v-if="!alunoAtivo(aluno)">
+                        (Aluno inativo)
+                    </span>
+                </div>
+
+                <div v-else-if="!alunoAtivo(aluno)">
+                    Aluno inativo — sem registro de presença.
                 </div>
 
                 <div v-else-if="aula.status === 'realizada'">

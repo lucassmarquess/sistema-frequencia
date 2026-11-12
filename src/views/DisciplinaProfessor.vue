@@ -1,53 +1,132 @@
+
 <script setup>
-    import { useRouter } from 'vue-router';
-    import { useRoute } from 'vue-router';
-    import FrequenciaService from '@/services/FrequenciaService';
-    import Aula from '@/models/Aula';
-    import AulaService from '@/services/AulaService';
+import { ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
-    const router = useRouter();
+import Aula from '@/models/Aula';
+import AulaService from '@/services/AulaService';
+import FrequenciaService from '@/services/FrequenciaService';
 
-    const route = useRoute();
-    const indice = Number(route.params.indice);
+const router = useRouter();
+const route = useRoute();
 
-    const disciplinas = FrequenciaService.totalDisciplinas(); 
-    const disciplina = [...disciplinas][indice];
+const erro = ref("");
 
-    const aulas = FrequenciaService.totalAulaPorDisciplina(disciplina);
-    const Aulas = FrequenciaService.aulasDeDisciplina(disciplina);
+const disciplinas = [...FrequenciaService.totalDisciplinas()];
 
-    const totalDeAulas = AulaService.listar();
-    const ultimaAula = totalDeAulas.at(-1);
-    const token = ultimaAula.token;
-    const numero = Number(token.replace("token", ""));
-    const novoToken = "token" + (numero + 1);
-    const data = new Date().toISOString().split('T')[0];
-    const horario = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
-    const novoId = ultimaAula.id + 1;
-    
-    function voltar() {
-        router.push('/DashBoardProfessor');
+const indice = Number(route.params.indice);
+
+const disciplina = Number.isInteger(indice) &&
+    indice >= 0 &&
+    indice < disciplinas.length
+        ? disciplinas[indice]
+        : null;
+
+const aulas = disciplina
+    ? FrequenciaService.totalAulaPorDisciplina(disciplina)
+    : 0;
+
+const aulasDaDisciplina = disciplina
+    ? FrequenciaService.aulasDeDisciplina(disciplina)
+    : [];
+
+function gerarNovoId() {
+    const todasAulas = AulaService.listar();
+
+    const maiorId = todasAulas.reduce((maior, aula) => {
+        return Math.max(maior, Number(aula.id) || 0);
+    }, 0);
+
+    return maiorId + 1;
+}
+
+function obterData() {
+    const agora = new Date();
+
+    return [
+        agora.getFullYear(),
+        String(agora.getMonth() + 1).padStart(2, "0"),
+        String(agora.getDate()).padStart(2, "0")
+    ].join("-");
+}
+
+function obterHorario() {
+    const agora = new Date();
+
+    return [
+        String(agora.getHours()).padStart(2, "0"),
+        String(agora.getMinutes()).padStart(2, "0")
+    ].join(":");
+}
+
+function criarAula() {
+    erro.value = "";
+
+    if (!disciplina) {
+        erro.value = "Disciplina não encontrada.";
+        return;
     }
-    function criarAula() {
-        AulaService.cadastrar(
-            new Aula(novoId, disciplina, data, horario, "aberta", novoToken)
-        );
+
+    const novoId = gerarNovoId();
+
+    const novaAula = new Aula(
+        novoId,
+        disciplina,
+        obterData(),
+        obterHorario(),
+        "aberta"
+    );
+
+    const resultado = AulaService.cadastrar(novaAula);
+
+    if (resultado !== "Aula cadastrada com sucesso") {
+        erro.value = resultado;
+        return;
     }
-    function verPresenca(id) {
-        router.push(`/PresencasProfessor/${id}`);
-    }
+
+    router.push(`/PresencasProfessor/${novoId}`);
+}
+
+function verPresenca(id) {
+    router.push(`/PresencasProfessor/${id}`);
+}
+
+function voltar() {
+    router.push('/DashBoardProfessor');
+}
 </script>
+
 <template>
-    <p>{{ disciplina }}</p>
-    <p>Total de Aulas: {{ aulas }}</p>
-    <p>Aulas:</p>
-    <ul>
-        <li v-for="aula in Aulas" :key="aula.id">
-            <p>{{ aula.data }}  *  {{ aula.horario }}</p>
-            <p>Status: {{ aula.status }}</p>
-            <button @click="verPresenca(aula.id)">Ver Presenças</button>
-        </li>
-    </ul>
-    <button @click="criarAula">+ Criar Nova Aula</button><br>
-    <button @click="voltar">Voltar</button>
+    <div v-if="disciplina">
+        <h1>{{ disciplina }}</h1>
+
+        <p>Total de Aulas: {{ aulas }}</p>
+
+        <h2>Aulas:</h2>
+
+        <ul>
+            <li v-for="aula in aulasDaDisciplina" :key="aula.id">
+                <p>{{ aula.data }} * {{ aula.horario }}</p>
+                <p>Status: {{ aula.status }}</p>
+
+                <button @click="verPresenca(aula.id)">
+                    Ver Presenças
+                </button>
+            </li>
+        </ul>
+
+        <button @click="criarAula">
+            + Criar Nova Aula
+        </button>
+    </div>
+
+    <p v-else>
+        Disciplina não encontrada.
+    </p>
+
+    <p v-if="erro">{{ erro }}</p>
+
+    <button @click="voltar">
+        Voltar
+    </button>
 </template>

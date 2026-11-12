@@ -30,7 +30,9 @@ export default class AulaService {
     static buscarPorId(id) {
         const aulas = AulaService.listar();
 
-        return aulas.find(aula => aula.id === id);
+        return aulas.find(
+            aula => aula.id === id
+        );
     }
 
     static atualizar(id, aula) {
@@ -44,7 +46,12 @@ export default class AulaService {
             return "Aula inexistente";
         }
 
-        aulas[indice] = aula;
+        // Preserva o ID original da aula.
+        aulas[indice] = {
+            ...aula,
+            id: id
+        };
+
         StorageService.atualizar("aulas", aulas);
 
         return "Aula atualizada com sucesso";

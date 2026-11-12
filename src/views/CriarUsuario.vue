@@ -1,8 +1,11 @@
+
 <script setup>
     import { useRouter } from 'vue-router';
     import { ref } from 'vue';
+
     import UsuarioService from '@/services/UsuarioService';
     import AlunoService from '@/services/AlunoService';
+
     import Usuario from '@/models/Usuario';
     import Aluno from '@/models/Aluno';
 
@@ -13,72 +16,124 @@
     const email = ref("");
     const tipo = ref("");
 
-    const usuarios = UsuarioService.listar();
-    const ultimoUsuario = usuarios.at(-1);
-    const novoId = ultimoUsuario.id + 1;
+    // Gera um ID considerando todos os usuários cadastrados.
+    function gerarNovoId() {
+        const usuarios = UsuarioService.listar();
 
-    const alunos = AlunoService.listar();
-    let matricula;
-    if (alunos.length === 0) {
-        matricula = "2000000";
+        if (usuarios.length === 0) {
+            return 1;
+        }
+
+        return Math.max(
+            ...usuarios.map(usuario => Number(usuario.id) || 0)
+        ) + 1;
     }
-    else {
-        const ultimoAluno = alunos.at(-1);
-        matricula = Number(ultimoAluno.matricula) + 1;
+
+    // Gera a próxima matrícula considerando todos os alunos.
+    function gerarNovaMatricula() {
+        const alunos = AlunoService.listar();
+
+        if (alunos.length === 0) {
+            return "2000000";
+        }
+
+        const maiorMatricula = Math.max(
+            ...alunos.map(aluno => Number(aluno.matricula) || 0)
+        );
+
+        return String(maiorMatricula + 1);
     }
 
     function cancelar() {
         router.push("/AdminDashBoard");
     }
-    function duplicidade(email) {
-        const jaExiste = usuarios.some(usuario => usuario.email === email);
-        return jaExiste;
-    }
+
     function cadastrar() {
-        if (nome.value.trim() === "") {
+        mensagem.value = "";
+
+        const nomeInformado = nome.value.trim();
+        const emailInformado = email.value.trim().toLowerCase();
+
+        if (nomeInformado === "") {
             mensagem.value = "O nome é obrigatório";
             return;
         }
-        if (nome.value.trim().length < 3) {
+
+        if (nomeInformado.length < 3) {
             mensagem.value = "O nome deve conter pelo menos 3 caracteres";
             return;
         }
-        if (email.value.trim() === "") {
-            mensagem.value = "O E-mail é obrigatório";
+
+        if (emailInformado === "") {
+            mensagem.value = "O e-mail é obrigatório";
             return;
         }
-        if (!email.value.includes("@") || !email.value.includes(".")) {
+
+        if (!emailInformado.includes("@") || !emailInformado.includes(".")) {
             mensagem.value = "E-mail inválido";
             return;
         }
-        if (duplicidade(email.value) === true) {
-            mensagem.value = "E-mail já cadastrado";
+
+        if (tipo.value === "") {
+            mensagem.value = "Selecione o tipo de usuário";
             return;
         }
+
+        const novoId = gerarNovoId();
+
         if (tipo.value === "aluno") {
+            const matricula = gerarNovaMatricula();
+
             AlunoService.cadastrar(
-                new Aluno(novoId, nome.value, email.value, matricula)
+                new Aluno(
+                    novoId,
+                    nomeInformado,
+                    emailInformado,
+                    matricula
+                )
             );
         }
-        UsuarioService.cadastrar(
-            new Usuario(novoId, nome.value, email.value, tipo.value)
+
+        const novoUsuario = new Usuario(
+            novoId,
+            nomeInformado,
+            emailInformado,
+            tipo.value
         );
+
+        const cadastro = UsuarioService.cadastrar(novoUsuario);
+
+        if (cadastro !== "Usuário cadastrado com sucesso") {
+            mensagem.value = cadastro;
+            return;
+        }
+
         router.push("/AdminDashBoard");
     }
 </script>
+
 <template>
     <h1>Novo Usuário</h1>
+
     <label>Nome:</label><br>
     <input type="text" v-model="nome"><br>
-    <label>Email:</label><br>
-    <input type="text" v-model="email"><br>
+
+    <label>E-mail:</label><br>
+    <input type="email" v-model="email"><br>
+
     <label>Tipo:</label><br>
+
     <select v-model="tipo">
+        <option value="" disabled>Selecione</option>
         <option value="aluno">Aluno</option>
         <option value="professor">Professor</option>
         <option value="admin">Admin</option>
-    </select><br><br>
+    </select>
+
+    <br><br>
+
     <button @click="cancelar()">Cancelar</button>
     <button @click="cadastrar()">Cadastrar</button>
+
     <p>{{ mensagem }}</p>
 </template>

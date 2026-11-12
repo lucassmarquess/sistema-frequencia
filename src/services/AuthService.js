@@ -50,7 +50,7 @@ export default class AuthService{
             return false;
         }
         const tipo = AuthService.tipoUsuario();
-        if (tipo === "aluno") {
+        if (tipo !== "professor") {
             return false;
         } 
         return true;
